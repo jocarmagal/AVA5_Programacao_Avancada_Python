@@ -1,0 +1,13 @@
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.Rproj.user/
+.Rhistory
+.RData
+*.egg-info/
+.DS_Store
+Thumbs.db
