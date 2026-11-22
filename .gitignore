@@ -11,3 +11,5 @@ __pycache__/
 *.egg-info/
 .DS_Store
 Thumbs.db
+data/processed/mapas_tiles/
+data/raw/*.csv

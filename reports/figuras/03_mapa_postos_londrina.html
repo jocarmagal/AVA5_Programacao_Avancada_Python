@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Postos de Londrina — janeiro de 2026</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #mapa { height: 100%; margin: 0; }
+    .painel {
+      background: #fff;
+      padding: 10px 12px;
+      line-height: 1.45;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+    .painel select {
+      margin-left: 6px;
+      font-size: 14px;
+      padding: 2px 4px;
+    }
+    .amostra {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="mapa"></div>
+  <script>
+    const dados = {"produtos": ["ETANOL", "GASOLINA", "DIESEL", "GASOLINA ADITIVADA", "DIESEL S10"], "pontos": [{"nome": "SERV BANC COMBUSTIVEIS E LUBRIFICANTES LTDA", "bairro": "PQ MEDITERRANEO", "endereco": "AVENIDA HARRY PROCHET, 369", "produto": "DIESEL S10", "preco": 7.05, "coletas": 14, "lat": -23.3462404, "lon": -51.1651501}, {"nome": "SERV BANC COMBUSTIVEIS E LUBRIFICANTES LTDA", "bairro": "PQ MEDITERRANEO", "endereco": "AVENIDA HARRY PROCHET, 369", "produto": "ETANOL", "preco": 4.39, "coletas": 25, "lat": -23.346767514277396, "lon": -51.16405553592454}, {"nome": "AUTO POSTO VALE DO RENO LTDA", "bairro": "RECANTO COLONIAL II", "endereco": "AVENIDA HARRY PROCHET, 730", "produto": "ETANOL", "preco": 4.37, "coletas": 18, "lat": -23.347951929307538, "lon": -51.163785200922945}, {"nome": "SERV BANC COMBUSTIVEIS E LUBRIFICANTES LTDA", "bairro": "PQ MEDITERRANEO", "endereco": "AVENIDA HARRY PROCHET, 369", "produto": "GASOLINA", "preco": 6.45, "coletas": 25, "lat": -23.348901756415064, "lon": -51.164542662765236}, {"nome": "AUTO POSTO VALE DO RENO LTDA", "bairro": "RECANTO COLONIAL II", "endereco": "AVENIDA HARRY PROCHET, 730", "produto": "GASOLINA", "preco": 6.39, "coletas": 26, "lat": -23.348901756415064, "lon": -51.16575753723476}, {"nome": "SERV BANC COMBUSTIVEIS E LUBRIFICANTES LTDA", "bairro": "PQ MEDITERRANEO", "endereco": "AVENIDA HARRY PROCHET, 369", "produto": "GASOLINA ADITIVADA", "preco": 6.85, "coletas": 25, "lat": -23.347951929307538, "lon": -51.16651499907705}, {"nome": "AUTO POSTO VALE DO RENO LTDA", "bairro": "RECANTO COLONIAL II", "endereco": "AVENIDA HARRY PROCHET, 730", "produto": "GASOLINA ADITIVADA", "preco": 6.59, "coletas": 26, "lat": -23.346767514277396, "lon": -51.16624466407546}, {"nome": "AUTO POSTO V Y LTDA.", "bairro": "FAZENDA PALHANO", "endereco": "AVENIDA AYRTON SENNA DA SILVA, 580", "produto": "DIESEL S10", "preco": 7.6, "coletas": 23, "lat": -23.3293857, "lon": -51.1778974}, {"nome": "AUTO POSTO V Y LTDA.", "bairro": "FAZENDA PALHANO", "endereco": "AVENIDA AYRTON SENNA DA SILVA, 580", "produto": "ETANOL", "preco": 4.95, "coletas": 24, "lat": -23.3307857, "lon": -51.1764974}, {"nome": "AUTO POSTO V Y LTDA.", "bairro": "FAZENDA PALHANO", "endereco": "AVENIDA AYRTON SENNA DA SILVA, 580", "produto": "GASOLINA", "preco": 6.91, "coletas": 24, "lat": -23.3321857, "lon": -51.1778974}, {"nome": "AUTO POSTO V Y LTDA.", "bairro": "FAZENDA PALHANO", "endereco": "AVENIDA AYRTON SENNA DA SILVA, 580", "produto": "GASOLINA ADITIVADA", "preco": 7.17, "coletas": 24, "lat": -23.3307857, "lon": -51.179297399999996}, {"nome": "AUTO POSTO VIA LAGO LTDA.", "bairro": "CENTRO", "endereco": "RUA SENADOR SOUZA NAVES, 1644", "produto": "ETANOL", "preco": 4.31, "coletas": 26, "lat": -23.3258222, "lon": -51.1580399}, {"nome": "AUTO POSTO VIA LAGO LTDA.", "bairro": "CENTRO", "endereco": "RUA SENADOR SOUZA NAVES, 1644", "produto": "GASOLINA", "preco": 6.34, "coletas": 26, "lat": -23.3279222, "lon": -51.1568274644347}, {"nome": "AUTO POSTO VIA LAGO LTDA.", "bairro": "CENTRO", "endereco": "RUA SENADOR SOUZA NAVES, 1644", "produto": "GASOLINA ADITIVADA", "preco": 6.9, "coletas": 26, "lat": -23.3279222, "lon": -51.1592523355653}, {"nome": "AUTO POSTO SAO PEDRO DE LONDRINA LTDA", "bairro": "CENTRO", "endereco": "AVENIDA DUQUE DE CAXIAS, 2509", "produto": "DIESEL", "preco": 6.79, "coletas": 10, "lat": -23.3187262, "lon": -51.1552727}, {"nome": "AUTO POSTO SAO PEDRO DE LONDRINA LTDA", "bairro": "CENTRO", "endereco": "AVENIDA DUQUE DE CAXIAS, 2509", "produto": "DIESEL S10", "preco": 7.0, "coletas": 10, "lat": -23.319693576207875, "lon": -51.153941220877186}, {"nome": "AUTO POSTO SAO PEDRO DE LONDRINA LTDA", "bairro": "CENTRO", "endereco": "AVENIDA DUQUE DE CAXIAS, 2509", "produto": "ETANOL", "preco": 4.38, "coletas": 10, "lat": -23.321258823792125, "lon": -51.15444980064679}, {"nome": "AUTO POSTO SAO PEDRO DE LONDRINA LTDA", "bairro": "CENTRO", "endereco": "AVENIDA DUQUE DE CAXIAS, 2509", "produto": "GASOLINA", "preco": 6.29, "coletas": 10, "lat": -23.321258823792125, "lon": -51.15609559935321}, {"nome": "AUTO POSTO SAO PEDRO DE LONDRINA LTDA", "bairro": "CENTRO", "endereco": "AVENIDA DUQUE DE CAXIAS, 2509", "produto": "GASOLINA ADITIVADA", "preco": 6.83, "coletas": 10, "lat": -23.319693576207875, "lon": -51.15660417912281}, {"nome": "R & S COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CENTRO", "endereco": "AVENIDA JUSCELINO KUBITSCHECK, 2", "produto": "ETANOL", "preco": 4.49, "coletas": 15, "lat": -23.3185182, "lon": -51.1652867}, {"nome": "R & S COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CENTRO", "endereco": "AVENIDA JUSCELINO KUBITSCHECK, 2", "produto": "GASOLINA", "preco": 6.37, "coletas": 15, "lat": -23.3206182, "lon": -51.1640742644347}, {"nome": "R & S COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CENTRO", "endereco": "AVENIDA JUSCELINO KUBITSCHECK, 2", "produto": "GASOLINA ADITIVADA", "preco": 6.57, "coletas": 14, "lat": -23.3206182, "lon": -51.1664991355653}, {"nome": "SANTA ANA ENERGIA LTDA", "bairro": "CENTRO", "endereco": "RUA PROFESSOR JOAO CANDIDO, 1052", "produto": "DIESEL S10", "preco": 6.63, "coletas": 22, "lat": -23.3171298, "lon": -51.1615758}, {"nome": "SANTA ANA ENERGIA LTDA", "bairro": "CENTRO", "endereco": "RUA PROFESSOR JOAO CANDIDO, 1052", "produto": "ETANOL", "preco": 3.98, "coletas": 22, "lat": -23.3185298, "lon": -51.160175800000005}, {"nome": "SANTA ANA ENERGIA LTDA", "bairro": "CENTRO", "endereco": "RUA PROFESSOR JOAO CANDIDO, 1052", "produto": "GASOLINA", "preco": 6.06, "coletas": 22, "lat": -23.3199298, "lon": -51.1615758}, {"nome": "SANTA ANA ENERGIA LTDA", "bairro": "CENTRO", "endereco": "RUA PROFESSOR JOAO CANDIDO, 1052", "produto": "GASOLINA ADITIVADA", "preco": 6.06, "coletas": 22, "lat": -23.3185298, "lon": -51.1629758}, {"nome": "AUTO POSTO MUFFATO LTDA", "bairro": "CENTRO", "endereco": "AVENIDA CELSO GARCIA CID, 562", "produto": "DIESEL S10", "preco": 7.07, "coletas": 3, "lat": -23.312868299999998, "lon": -51.1515031}, {"nome": "AUTO POSTO MUFFATO LTDA", "bairro": "CENTRO", "endereco": "AVENIDA CELSO GARCIA CID, 562", "produto": "ETANOL", "preco": 3.94, "coletas": 3, "lat": -23.3142683, "lon": -51.1501031}, {"nome": "AUTO POSTO MUFFATO LTDA", "bairro": "CENTRO", "endereco": "AVENIDA CELSO GARCIA CID, 562", "produto": "GASOLINA", "preco": 6.57, "coletas": 3, "lat": -23.3156683, "lon": -51.1515031}, {"nome": "AUTO POSTO MUFFATO LTDA", "bairro": "CENTRO", "endereco": "AVENIDA CELSO GARCIA CID, 562", "produto": "GASOLINA ADITIVADA", "preco": 6.67, "coletas": 3, "lat": -23.3142683, "lon": -51.152903099999996}, {"nome": "AUTO POSTO MASP MARANHAO LTDA", "bairro": "CENTRO", "endereco": "RUA MARANHAO, 703", "produto": "DIESEL S10", "preco": 7.13, "coletas": 15, "lat": -23.309514, "lon": -51.1545209}, {"nome": "AUTO POSTO MASP MARANHAO LTDA", "bairro": "CENTRO", "endereco": "RUA MARANHAO, 703", "produto": "ETANOL", "preco": 4.3, "coletas": 15, "lat": -23.310914, "lon": -51.153120900000005}, {"nome": "AUTO POSTO MASP MARANHAO LTDA", "bairro": "CENTRO", "endereco": "RUA MARANHAO, 703", "produto": "GASOLINA", "preco": 6.42, "coletas": 15, "lat": -23.312314, "lon": -51.1545209}, {"nome": "AUTO POSTO MASP MARANHAO LTDA", "bairro": "CENTRO", "endereco": "RUA MARANHAO, 703", "produto": "GASOLINA ADITIVADA", "preco": 6.8, "coletas": 15, "lat": -23.310914, "lon": -51.1559209}, {"nome": "MIMIPETRO - COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "PARQUE DAS INDUSTRIA", "endereco": "AVENIDA GUILHERME DE ALMEIDA, 1587", "produto": "DIESEL", "preco": 6.66, "coletas": 26, "lat": -23.30888, "lon": -51.16278}, {"nome": "STAR SHOPPING AUTO POSTO LTDA", "bairro": "JARDIM PALMARES", "endereco": "RUA GUAPORE, 1588", "produto": "DIESEL", "preco": 6.67, "coletas": 22, "lat": -23.308900137725512, "lon": -51.16254339885155}, {"nome": "D.H. PETROLEO LTDA", "bairro": "JARDIM IPANEMA", "endereco": "AVENIDA HIGIENOPOLIS, 1700", "produto": "DIESEL", "preco": 6.7, "coletas": 26, "lat": -23.308959971576353, "lon": -51.16231360428736}, {"nome": "FOKUSS COMÉRCIO DE COMBUSTÍVEIS LTDA.", "bairro": "JARDIM ROSICLER", "endereco": "AVENIDA TIRADENTES, 6350", "produto": "DIESEL", "preco": 7.02, "coletas": 20, "lat": -23.309057780241574, "lon": -51.16209722707866}, {"nome": "AUTO POSTO FORMIGAO EIRELI", "bairro": "CONJUNTO HABITACIONAL JAMILE DEQUECH", "endereco": "RODOVIA PR-445, S/N", "produto": "DIESEL", "preco": 6.9, "coletas": 6, "lat": -23.30919074994395, "lon": -51.16190049200378}, {"nome": "MIMIPETRO - COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "PARQUE DAS INDUSTRIA", "endereco": "AVENIDA GUILHERME DE ALMEIDA, 1587", "produto": "DIESEL S10", "preco": 6.94, "coletas": 26, "lat": -23.309355055387254, "lon": -51.16172905877264}, {"nome": "STAR SHOPPING AUTO POSTO LTDA", "bairro": "JARDIM PALMARES", "endereco": "RUA GUAPORE, 1588", "produto": "DIESEL S10", "preco": 7.17, "coletas": 23, "lat": -23.30954596980302, "lon": -51.161587859207174}, {"nome": "FOKUSS COMÉRCIO DE COMBUSTÍVEIS LTDA.", "bairro": "JARDIM ROSICLER", "endereco": "AVENIDA TIRADENTES, 6350", "produto": "DIESEL S10", "preco": 7.28, "coletas": 20, "lat": -23.309758000931108, "lon": -51.16148095536178}, {"nome": "AUTO POSTO BS PREMIUM LTDA", "bairro": "PARQUE GUANABARA", "endereco": "RUA ASSUNCAO, 289", "produto": "DIESEL S10", "preco": 7.0, "coletas": 15, "lat": -23.309985049022004, "lon": -51.16141142266547}, {"nome": "AUTO POSTO SANT'ANA LTDA", "bairro": "GLEBA FAZENDA PALHANO", "endereco": "RODOVIA MABIO GONCALVES PALHANO, 1377", "produto": "DIESEL S10", "preco": 7.12, "coletas": 26, "lat": -23.310220582315523, "lon": -51.16138126144731}, {"nome": "AUTO POSTO FORMIGAO EIRELI", "bairro": "CONJUNTO HABITACIONAL JAMILE DEQUECH", "endereco": "RODOVIA PR-445, S/N", "produto": "DIESEL S10", "preco": 7.3, "coletas": 6, "lat": -23.310457824947644, "lon": -51.16139133939063}, {"nome": "MIMIPETRO - COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "PARQUE DAS INDUSTRIA", "endereco": "AVENIDA GUILHERME DE ALMEIDA, 1587", "produto": "ETANOL", "preco": 4.37, "coletas": 26, "lat": -23.310689951879787, "lon": -51.16144136657136}, {"nome": "AUTO POSTO ECOS LTDA", "bairro": "CENTRO", "endereco": "RUA MONTESE, 325", "produto": "ETANOL", "preco": 4.77, "coletas": 25, "lat": -23.310910285242745, "lon": -51.16152990379859}, {"nome": "STAR SHOPPING AUTO POSTO LTDA", "bairro": "JARDIM PALMARES", "endereco": "RUA GUAPORE, 1588", "produto": "ETANOL", "preco": 4.23, "coletas": 23, "lat": -23.311112486446824, "lon": -51.16165440401748}, {"nome": "D.H. PETROLEO LTDA", "bairro": "JARDIM IPANEMA", "endereco": "AVENIDA HIGIENOPOLIS, 1700", "produto": "ETANOL", "preco": 4.11, "coletas": 26, "lat": -23.311290738531536, "lon": -51.16181128558343}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "RODOVIA", "endereco": "RODOVIA MABIO GONÇALVES PALHANO, 155", "produto": "ETANOL", "preco": 4.49, "coletas": 25, "lat": -23.31143991350894, "lon": -51.1619960352994}, {"nome": "FOKUSS COMÉRCIO DE COMBUSTÍVEIS LTDA.", "bairro": "JARDIM ROSICLER", "endereco": "AVENIDA TIRADENTES, 6350", "produto": "ETANOL", "preco": 4.54, "coletas": 20, "lat": -23.31155571988654, "lon": -51.16220333825245}, {"nome": "AUTO POSTO BS PREMIUM LTDA", "bairro": "PARQUE GUANABARA", "endereco": "RUA ASSUNCAO, 289", "produto": "ETANOL", "preco": 4.51, "coletas": 25, "lat": -23.311634826125704, "lon": -51.16242723071406}, {"nome": "AUTO POSTO SANT'ANA LTDA", "bairro": "GLEBA FAZENDA PALHANO", "endereco": "RODOVIA MABIO GONCALVES PALHANO, 1377", "produto": "ETANOL", "preco": 4.41, "coletas": 26, "lat": -23.31167495648396, "lon": -51.16266127170573}, {"nome": "AUTO POSTO FORMIGAO EIRELI", "bairro": "CONJUNTO HABITACIONAL JAMILE DEQUECH", "endereco": "RODOVIA PR-445, S/N", "produto": "ETANOL", "preco": 4.61, "coletas": 6, "lat": -23.31167495648396, "lon": -51.162898728294266}, {"nome": "MIMIPETRO - COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "PARQUE DAS INDUSTRIA", "endereco": "AVENIDA GUILHERME DE ALMEIDA, 1587", "produto": "GASOLINA", "preco": 6.4, "coletas": 26, "lat": -23.311634826125704, "lon": -51.16313276928594}, {"nome": "AUTO POSTO ECOS LTDA", "bairro": "CENTRO", "endereco": "RUA MONTESE, 325", "produto": "GASOLINA", "preco": 7.09, "coletas": 26, "lat": -23.31155571988654, "lon": -51.16335666174754}, {"nome": "STAR SHOPPING AUTO POSTO LTDA", "bairro": "JARDIM PALMARES", "endereco": "RUA GUAPORE, 1588", "produto": "GASOLINA", "preco": 6.36, "coletas": 23, "lat": -23.31143991350894, "lon": -51.16356396470059}, {"nome": "D.H. PETROLEO LTDA", "bairro": "JARDIM IPANEMA", "endereco": "AVENIDA HIGIENOPOLIS, 1700", "produto": "GASOLINA", "preco": 6.22, "coletas": 26, "lat": -23.311290738531536, "lon": -51.16374871441656}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "RODOVIA", "endereco": "RODOVIA MABIO GONÇALVES PALHANO, 155", "produto": "GASOLINA", "preco": 6.59, "coletas": 26, "lat": -23.311112486446824, "lon": -51.16390559598251}, {"nome": "FOKUSS COMÉRCIO DE COMBUSTÍVEIS LTDA.", "bairro": "JARDIM ROSICLER", "endereco": "AVENIDA TIRADENTES, 6350", "produto": "GASOLINA", "preco": 6.77, "coletas": 19, "lat": -23.310910285242745, "lon": -51.16403009620141}, {"nome": "AUTO POSTO BS PREMIUM LTDA", "bairro": "PARQUE GUANABARA", "endereco": "RUA ASSUNCAO, 289", "produto": "GASOLINA", "preco": 6.61, "coletas": 25, "lat": -23.310689951879787, "lon": -51.164118633428636}, {"nome": "AUTO POSTO SANT'ANA LTDA", "bairro": "GLEBA FAZENDA PALHANO", "endereco": "RODOVIA MABIO GONCALVES PALHANO, 1377", "produto": "GASOLINA", "preco": 6.56, "coletas": 26, "lat": -23.310457824947644, "lon": -51.16416866060936}, {"nome": "AUTO POSTO FORMIGAO EIRELI", "bairro": "CONJUNTO HABITACIONAL JAMILE DEQUECH", "endereco": "RODOVIA PR-445, S/N", "produto": "GASOLINA", "preco": 6.58, "coletas": 6, "lat": -23.310220582315523, "lon": -51.164178738552685}, {"nome": "MIMIPETRO - COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "PARQUE DAS INDUSTRIA", "endereco": "AVENIDA GUILHERME DE ALMEIDA, 1587", "produto": "GASOLINA ADITIVADA", "preco": 6.57, "coletas": 26, "lat": -23.309985049022004, "lon": -51.16414857733452}, {"nome": "AUTO POSTO ECOS LTDA", "bairro": "CENTRO", "endereco": "RUA MONTESE, 325", "produto": "GASOLINA ADITIVADA", "preco": 7.4, "coletas": 26, "lat": -23.309758000931108, "lon": -51.164079044638214}, {"nome": "STAR SHOPPING AUTO POSTO LTDA", "bairro": "JARDIM PALMARES", "endereco": "RUA GUAPORE, 1588", "produto": "GASOLINA ADITIVADA", "preco": 6.64, "coletas": 23, "lat": -23.30954596980302, "lon": -51.16397214079282}, {"nome": "D.H. PETROLEO LTDA", "bairro": "JARDIM IPANEMA", "endereco": "AVENIDA HIGIENOPOLIS, 1700", "produto": "GASOLINA ADITIVADA", "preco": 6.33, "coletas": 26, "lat": -23.309355055387254, "lon": -51.16383094122735}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "RODOVIA", "endereco": "RODOVIA MABIO GONÇALVES PALHANO, 155", "produto": "GASOLINA ADITIVADA", "preco": 6.99, "coletas": 26, "lat": -23.30919074994395, "lon": -51.163659507996215}, {"nome": "AUTO POSTO BS PREMIUM LTDA", "bairro": "PARQUE GUANABARA", "endereco": "RUA ASSUNCAO, 289", "produto": "GASOLINA ADITIVADA", "preco": 6.91, "coletas": 25, "lat": -23.309057780241574, "lon": -51.163462772921335}, {"nome": "AUTO POSTO SANT'ANA LTDA", "bairro": "GLEBA FAZENDA PALHANO", "endereco": "RODOVIA MABIO GONCALVES PALHANO, 1377", "produto": "GASOLINA ADITIVADA", "preco": 6.56, "coletas": 25, "lat": -23.308959971576353, "lon": -51.16324639571263}, {"nome": "AUTO POSTO FORMIGAO EIRELI", "bairro": "CONJUNTO HABITACIONAL JAMILE DEQUECH", "endereco": "RODOVIA PR-445, S/N", "produto": "GASOLINA ADITIVADA", "preco": 6.78, "coletas": 6, "lat": -23.308900137725512, "lon": -51.16301660114845}, {"nome": "SANTA ANA ENERGIA LESTE LTDA", "bairro": "CENTRO", "endereco": "AVENIDA ARCEBISPO DOM GERALDO FERNANDES, 2855", "produto": "DIESEL", "preco": 5.59, "coletas": 2, "lat": -23.3064568, "lon": -51.1621799}, {"nome": "SANTA ANA ENERGIA LESTE LTDA", "bairro": "CENTRO", "endereco": "AVENIDA ARCEBISPO DOM GERALDO FERNANDES, 2855", "produto": "DIESEL S10", "preco": 5.79, "coletas": 2, "lat": -23.3078568, "lon": -51.1607799}, {"nome": "SANTA ANA ENERGIA LESTE LTDA", "bairro": "CENTRO", "endereco": "AVENIDA ARCEBISPO DOM GERALDO FERNANDES, 2855", "produto": "ETANOL", "preco": 4.01, "coletas": 9, "lat": -23.3092568, "lon": -51.1621799}, {"nome": "SANTA ANA ENERGIA LESTE LTDA", "bairro": "CENTRO", "endereco": "AVENIDA ARCEBISPO DOM GERALDO FERNANDES, 2855", "produto": "GASOLINA", "preco": 6.03, "coletas": 9, "lat": -23.3078568, "lon": -51.163579899999995}, {"nome": "D.Q.B. PETROLEO LTDA", "bairro": "CENTRO", "endereco": "RUA QUINTINO BOCAIUVA, 686", "produto": "DIESEL", "preco": 6.48, "coletas": 23, "lat": -23.3042109, "lon": -51.1680891}, {"nome": "D.Q.B. PETROLEO LTDA", "bairro": "CENTRO", "endereco": "RUA QUINTINO BOCAIUVA, 686", "produto": "DIESEL S10", "preco": 6.76, "coletas": 3, "lat": -23.305178276207876, "lon": -51.16675762087719}, {"nome": "D.Q.B. PETROLEO LTDA", "bairro": "CENTRO", "endereco": "RUA QUINTINO BOCAIUVA, 686", "produto": "ETANOL", "preco": 4.19, "coletas": 13, "lat": -23.306743523792125, "lon": -51.16726620064679}, {"nome": "D.Q.B. PETROLEO LTDA", "bairro": "CENTRO", "endereco": "RUA QUINTINO BOCAIUVA, 686", "produto": "GASOLINA", "preco": 6.24, "coletas": 11, "lat": -23.306743523792125, "lon": -51.16891199935321}, {"nome": "D.Q.B. PETROLEO LTDA", "bairro": "CENTRO", "endereco": "RUA QUINTINO BOCAIUVA, 686", "produto": "GASOLINA ADITIVADA", "preco": 6.21, "coletas": 23, "lat": -23.305178276207876, "lon": -51.169420579122814}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "JARDIM SHANGRI-LA A", "endereco": "AVENIDA TIRADENTES, 1241", "produto": "DIESEL S10", "preco": 7.29, "coletas": 1, "lat": -23.2972228, "lon": -51.1919629}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "JARDIM SHANGRI-LA A", "endereco": "AVENIDA TIRADENTES, 1241", "produto": "ETANOL", "preco": 4.45, "coletas": 21, "lat": -23.2986228, "lon": -51.1905629}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "JARDIM SHANGRI-LA A", "endereco": "AVENIDA TIRADENTES, 1241", "produto": "GASOLINA", "preco": 6.6, "coletas": 21, "lat": -23.3000228, "lon": -51.1919629}, {"nome": "COMERCIO DE COMBUSTIVEIS CASARIN LTDA", "bairro": "JARDIM SHANGRI-LA A", "endereco": "AVENIDA TIRADENTES, 1241", "produto": "GASOLINA ADITIVADA", "preco": 7.01, "coletas": 21, "lat": -23.2986228, "lon": -51.1933629}, {"nome": "AUTO POSTO TAQUARI DE LONDRINA EIRELI", "bairro": "VILA NOVA", "endereco": "RUA TAQUARI, 110", "produto": "DIESEL", "preco": 6.45, "coletas": 24, "lat": -23.2958484, "lon": -51.1607323}, {"nome": "AUTO POSTO TAQUARI DE LONDRINA EIRELI", "bairro": "VILA NOVA", "endereco": "RUA TAQUARI, 110", "produto": "DIESEL S10", "preco": 6.75, "coletas": 24, "lat": -23.2972484, "lon": -51.1593323}, {"nome": "AUTO POSTO TAQUARI DE LONDRINA EIRELI", "bairro": "VILA NOVA", "endereco": "RUA TAQUARI, 110", "produto": "ETANOL", "preco": 3.99, "coletas": 24, "lat": -23.2986484, "lon": -51.1607323}, {"nome": "AUTO POSTO TAQUARI DE LONDRINA EIRELI", "bairro": "VILA NOVA", "endereco": "RUA TAQUARI, 110", "produto": "GASOLINA", "preco": 6.07, "coletas": 24, "lat": -23.2972484, "lon": -51.162132299999996}, {"nome": "AUTO POSTO BRASILIA DE LONDRINA LTDA", "bairro": "VILA YARA", "endereco": "AVENIDA BRASILIA, 5250", "produto": "DIESEL", "preco": 6.8, "coletas": 21, "lat": -23.2914659, "lon": -51.1458742}, {"nome": "AUTO POSTO BRASILIA DE LONDRINA LTDA", "bairro": "VILA YARA", "endereco": "AVENIDA BRASILIA, 5250", "produto": "ETANOL", "preco": 4.26, "coletas": 21, "lat": -23.2928659, "lon": -51.144474200000005}, {"nome": "AUTO POSTO BRASILIA DE LONDRINA LTDA", "bairro": "VILA YARA", "endereco": "AVENIDA BRASILIA, 5250", "produto": "GASOLINA", "preco": 6.31, "coletas": 21, "lat": -23.2942659, "lon": -51.1458742}, {"nome": "AUTO POSTO BRASILIA DE LONDRINA LTDA", "bairro": "VILA YARA", "endereco": "AVENIDA BRASILIA, 5250", "produto": "GASOLINA ADITIVADA", "preco": 6.51, "coletas": 21, "lat": -23.2928659, "lon": -51.1472742}, {"nome": "KALAHAN COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CONJUNTO VIVI XAVIER", "endereco": "AVENIDA SAUL ELKIND, 2100", "produto": "DIESEL", "preco": 6.75, "coletas": 20, "lat": -23.2573442, "lon": -51.1582757}, {"nome": "KALAHAN COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CONJUNTO VIVI XAVIER", "endereco": "AVENIDA SAUL ELKIND, 2100", "produto": "DIESEL S10", "preco": 7.15, "coletas": 21, "lat": -23.258311576207873, "lon": -51.156944220877186}, {"nome": "KALAHAN COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CONJUNTO VIVI XAVIER", "endereco": "AVENIDA SAUL ELKIND, 2100", "produto": "ETANOL", "preco": 4.32, "coletas": 21, "lat": -23.259876823792123, "lon": -51.15745280064679}, {"nome": "KALAHAN COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CONJUNTO VIVI XAVIER", "endereco": "AVENIDA SAUL ELKIND, 2100", "produto": "GASOLINA", "preco": 6.38, "coletas": 21, "lat": -23.259876823792123, "lon": -51.15909859935321}, {"nome": "KALAHAN COMERCIO DE COMBUSTIVEIS LTDA", "bairro": "CONJUNTO VIVI XAVIER", "endereco": "AVENIDA SAUL ELKIND, 2100", "produto": "GASOLINA ADITIVADA", "preco": 6.77, "coletas": 21, "lat": -23.258311576207873, "lon": -51.15960717912281}]};
+    const pontos = dados.pontos;
+    const produtos = dados.produtos;
+    const coresProduto = {
+      "ETANOL": "#E69F00",
+      "GASOLINA": "#0072B2",
+      "DIESEL": "#009E73",
+      "GASOLINA ADITIVADA": "#D55E00",
+      "DIESEL S10": "#CC79A7"
+    };
+
+    const mapa = L.map("mapa");
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 19,
+      attribution: "Ruas &copy; Esri, OpenStreetMap"
+    }).addTo(mapa);
+
+    function reais(valor) {
+      return "R$ " + valor.toFixed(2).replace(".", ",");
+    }
+
+    function corPreco(preco, minimo, maximo) {
+      const t = (preco - minimo) / (maximo - minimo || 1);
+      const vermelho = Math.round(68 + t * (253 - 68));
+      const verde = Math.round(1 + t * (231 - 1));
+      const azul = Math.round(84 + t * (37 - 84));
+      return "rgb(" + vermelho + "," + verde + "," + azul + ")";
+    }
+
+    function escapar(valor) {
+      return String(valor ?? "").replace(/[&<>]/g, (letra) => (
+        { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[letra]
+      ));
+    }
+
+    const camada = L.featureGroup().addTo(mapa);
+
+    function desenhar(filtro) {
+      camada.clearLayers();
+      const visiveis = filtro === "TODOS"
+        ? pontos
+        : pontos.filter((ponto) => ponto.produto === filtro);
+      const precos = visiveis.map((ponto) => ponto.preco);
+      const minimo = Math.min(...precos);
+      const maximo = Math.max(...precos);
+
+      visiveis.forEach((ponto) => {
+        const cor = filtro === "TODOS"
+          ? (coresProduto[ponto.produto] || "#333333")
+          : corPreco(ponto.preco, minimo, maximo);
+        const marca = L.circleMarker([ponto.lat, ponto.lon], {
+          radius: 8,
+          color: "#ffffff",
+          weight: 1.5,
+          fillColor: cor,
+          fillOpacity: 0.95
+        });
+        marca.bindPopup(
+          "<strong>" + escapar(ponto.nome) + "</strong><br>" +
+          escapar(ponto.endereco) + "<br>" +
+          escapar(ponto.bairro) + "<br>" +
+          escapar(ponto.produto) + ": " + reais(ponto.preco) +
+          "<br>" + ponto.coletas + " coletas"
+        );
+        marca.bindTooltip(ponto.produto + " " + reais(ponto.preco));
+        camada.addLayer(marca);
+      });
+
+      if (visiveis.length) {
+        mapa.fitBounds(camada.getBounds().pad(0.15));
+      }
+      atualizarLegenda(filtro, visiveis, minimo, maximo);
+    }
+
+    const filtro = L.control({ position: "topleft" });
+    filtro.onAdd = function () {
+      const caixa = L.DomUtil.create("div", "painel");
+      const opcoes = ["<option value=\"TODOS\">Todos os produtos</option>"]
+        .concat(produtos.map((produto) => (
+          "<option value=\"" + escapar(produto) + "\">" + escapar(produto) + "</option>"
+        )));
+      caixa.innerHTML = "<label>Produto<select id=\"filtro-produto\">"
+        + opcoes.join("") + "</select></label><div id=\"resumo\"></div>";
+      L.DomEvent.disableClickPropagation(caixa);
+      L.DomEvent.disableScrollPropagation(caixa);
+      return caixa;
+    };
+    filtro.addTo(mapa);
+
+    const legenda = L.control({ position: "bottomright" });
+    legenda.onAdd = function () {
+      return L.DomUtil.create("div", "painel");
+    };
+    legenda.addTo(mapa);
+
+    function atualizarLegenda(filtroAtual, visiveis, minimo, maximo) {
+      const caixa = document.querySelector(".leaflet-bottom.leaflet-right .painel");
+      const resumo = document.getElementById("resumo");
+      resumo.textContent = visiveis.length + " pontos no mapa";
+      if (filtroAtual === "TODOS") {
+        const itens = produtos.map((produto) => {
+          const quantidade = pontos.filter((ponto) => ponto.produto === produto).length;
+          return "<div><span class=\"amostra\" style=\"background:"
+            + (coresProduto[produto] || "#333") + "\"></span>"
+            + escapar(produto) + " (" + quantidade + ")</div>";
+        });
+        caixa.innerHTML = "<b>Todos os produtos</b>" + itens.join("");
+        return;
+      }
+      caixa.innerHTML = "<b>" + escapar(filtroAtual) + "</b><br>Mais barato: "
+        + reais(minimo) + "<br>Mais caro: " + reais(maximo)
+        + "<br><span class=\"amostra\" style=\"background:#440154\"></span>barato"
+        + " <span class=\"amostra\" style=\"background:#fde725\"></span>caro";
+    }
+
+    document.getElementById("filtro-produto").addEventListener("change", (evento) => {
+      desenhar(evento.target.value);
+    });
+    desenhar("TODOS");
+  </script>
+</body>
+</html>

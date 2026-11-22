@@ -1,0 +1,28 @@
+Arquivo: precos_combustiveis.parquet
+Linhas: 422418
+Colunas: 16
+Duplicatas exatas: 6
+
+Ausentes e tipo por coluna:
+- Regiao - Sigla: 0 ausentes (0.0%), tipo object
+- Estado - Sigla: 0 ausentes (0.0%), tipo object
+- Municipio: 0 ausentes (0.0%), tipo object
+- Revenda: 0 ausentes (0.0%), tipo object
+- CNPJ da Revenda: 0 ausentes (0.0%), tipo object
+- Nome da Rua: 0 ausentes (0.0%), tipo object
+- Numero Rua: 6 ausentes (0.0%), tipo object
+- Complemento: 326259 ausentes (77.2%), tipo object
+- Bairro: 728 ausentes (0.2%), tipo object
+- Cep: 0 ausentes (0.0%), tipo object
+- Produto: 0 ausentes (0.0%), tipo object
+- Data da Coleta: 0 ausentes (0.0%), tipo object
+- Valor de Venda: 0 ausentes (0.0%), tipo float64
+- Valor de Compra: 422418 ausentes (100.0%), tipo float64
+- Unidade de Medida: 0 ausentes (0.0%), tipo object
+- Bandeira: 0 ausentes (0.0%), tipo object
+
+CNPJ com espaço no início: 422418
+Data da Coleta está como object, exemplo 02/01/2026.
+Produtos encontrados: DIESEL, DIESEL S10, ETANOL, GASOLINA, GASOLINA ADITIVADA, GNV
+Unidades de medida: R$ / litro, R$ / m³
+Valor de Compra está vazio em todas as linhas e sai da tabela tratada.

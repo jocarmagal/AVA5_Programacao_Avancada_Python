@@ -1,14 +1,14 @@
-# Atividade integradora — preços de combustíveis da ANP
+# Atividade integradora — preços de combustíveis em Londrina
 
-Pipeline reprodutível, na trilha Python, do levantamento de preços de combustíveis automotivos até artefatos auditáveis. Este repositório está na estrutura pedida pela atividade. As etapas de limpeza, engenharia, gráficos, testes e relatório entram nas próximas evoluções.
+Pipeline em Python que parte do levantamento da ANP, diagnostica o Parquet, trata os dados em DuckDB e responde quanto custa o combustível em Londrina.
 
 ## Objetivo e pergunta orientadora
 
-Objetivo: transformar o arquivo bruto de janeiro de 2026 em um fluxo que qualquer colega reproduza do zero, com dados processados em Parquet, figuras e um relato das decisões.
+Objetivo: entregar um fluxo reproduzível, do arquivo bruto aos gráficos, à planilha e ao relatório.
 
-Pergunta orientadora de partida: no levantamento de janeiro de 2026, como varia o preço de venda dos combustíveis automotivos entre as regiões do Brasil e entre as bandeiras dos postos?
+Pergunta orientadora: em janeiro de 2026, como varia o preço de venda dos combustíveis em Londrina-PR entre produtos, bairros e postos?
 
-A pergunta pode ser afinada quando o diagnóstico do arquivo estiver pronto.
+O recorte geográfico é o estado do Paraná e o município de Londrina. Dentro da cidade, a sigla de região da ANP é uma só (Sul). A comparação regional do trabalho usa o bairro e a posição dos postos.
 
 ## Fonte dos dados
 
@@ -19,13 +19,11 @@ A pergunta pode ser afinada quando o diagnóstico do arquivo estiver pronto.
 - Origem: Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP), dados abertos do Levantamento de Preços de Combustíveis.
 - Conferência no Windows: `Get-FileHash data\raw\ca-2026-01.zip -Algorithm SHA256`
 
-Colunas do arquivo bruto: Região, Estado, Município, Revenda, CNPJ da Revenda, Nome da Rua, Número, Complemento, Bairro, CEP, Produto, Data da Coleta, Valor de Venda, Valor de Compra, Unidade de Medida e Bandeira.
-
-A data da coleta não traz horário. O fuso de referência do projeto é `America/Sao_Paulo`: a data civil é mantida como calendário local e, quando houver timestamp, a persistência será em UTC.
+A data da coleta não traz horário. O fuso de referência é `America/Sao_Paulo`: a data permanece como calendário local e é gravada como data, sem conversão artificial para timestamp.
 
 ## Passo a passo de reprodução
 
-Executar na raiz deste repositório, com Python 3.10 ou superior.
+Na raiz do repositório, com Python 3.10 ou superior.
 
 Setup:
 
@@ -34,40 +32,66 @@ python -m venv .venv
 .venv\Scripts\activate
 ```
 
-Build: instalação das dependências fixadas em `requirements.txt`.
+Build: instalar as versões fixadas em `requirements.txt`.
 
 ```text
 python -m pip install -r requirements.txt
 ```
 
-Teste e execução, nesta ordem, quando o pipeline estiver implementado:
+Teste:
 
 ```text
 python -m pytest
+```
+
+Execução, em um comando:
+
+```text
 python -m src.pipeline
 ```
 
-O comando único previsto é `python -m src.pipeline`. Nesta versão ele ainda não processa o zip.
+Esse comando chama, nesta ordem, `carregar` (etapas 1 a 3), `limpar` (etapa 4, com diagnóstico do Parquet antes do DuckDB), `visualizar` (etapas 5, 6 e 7) e `salvar` (etapa 8).
+
+As etapas também rodam sozinhas:
+
+```text
+python src/1_download_dataset.py
+python src/2_extracao_data_set.py
+python src/3_csv_para_parquet.py
+python src/4_tratamento_duckdb.py
+python src/5_preco_medio_por_produto.py
+python src/6_geolocalizacao_mapa.py
+python src/7_extremos_por_produto.py
+python src/8_planilha_por_produto.py
+```
+
+Se o arquivo DuckDB estiver aberto em outro programa, feche essa janela antes da etapa 4. As etapas 5 a 8, nesse caso, refazem o recorte de Londrina a partir do Parquet.
 
 ## Artefatos gerados
 
-Nesta versão o artefato de dados é o zip bruto em `data/raw/`. A evolução do pipeline deve passar a gerar:
+- `data/raw/ca-2026-01.zip` e o CSV extraído. A pasta bruta não é alterada pelas etapas seguintes.
+- `reports/diagnostico_parquet.txt`, escrito na etapa 4 antes de criar o banco.
+- `data/processed/precos_combustiveis.parquet`, relido ao final da etapa 3.
+- `data/processed/precos_combustiveis.duckdb`, com `precos_bruto` (arquivo inteiro) e `precos` (Londrina tratada).
+- `data/processed/preco_medio_por_produto.parquet`, `preco_medio_por_bairro.parquet`, `extremos_por_produto.parquet` e `geolocalizacao_postos.parquet`.
+- `data/processed/precos_londrina_por_produto.xlsx`, uma aba por produto, do menor preço ao maior.
+- `reports/figuras/01_preco_medio_por_produto.png`
+- `reports/figuras/02_preco_medio_por_bairro.png`
+- `reports/figuras/03_mapas_por_produto.png` e um mapa por produto (`03_mapa_etanol.png`, `03_mapa_gasolina.png`, `03_mapa_diesel.png`, `03_mapa_gasolina_aditivada.png`, `03_mapa_diesel_s10.png`)
+- `reports/figuras/03_mapa_postos_londrina.html`, mapa interativo com as ruas e os postos
+- `reports/figuras/04_extremos_por_produto.png`
+- `reports/relatorio.md`
 
-- `src/pipeline.py`, com as etapas `carregar`, `limpar`, `engenharia`, `visualizar` e `salvar`
-- `data/processed/` em Parquet, relido como validação, e CSV de apoio se fizer falta
-- `reports/figuras/` com pelo menos três gráficos ligados à pergunta
-- `reports/relatorio.md` com método, resultados e limitações
-- `tests/` com testes de transformação e um fluxo de integração em amostra pequena
+Decisões de limpeza, aplicadas na etapa 4 e registradas no diagnóstico:
 
-`data/raw/` permanece somente leitura. Tudo o que o pipeline produzir vai para `data/processed/` e `reports/`.
+- textos sem espaço nas bordas, inclusive o CNPJ, que vinha com espaço à esquerda em todas as linhas;
+- data da coleta convertida de texto `dd/mm/aaaa` para data;
+- duplicatas exatas removidas (6 no arquivo nacional);
+- `Valor de Compra` ficou de fora da tabela tratada porque estava vazio em 100% das linhas;
+- a tabela `precos` mantém só `PR` e `LONDRINA`.
 
 ## Limitações e próximos passos
 
-O arquivo reúne preços informados no levantamento, não volume vendido. Uma linha do CSV já mostra `Valor de Compra` vazio e espaço à esquerda no CNPJ. A frequência desses casos, duplicatas, produtos e bandeiras será medida no diagnóstico, não estimada antes da leitura completa.
+O preço é o valor informado na coleta, não o volume vendido. O mês é só janeiro de 2026. O GNV aparece no arquivo nacional e não entra no recorte de Londrina. O complemento do endereço está ausente na maior parte do Brasil e não foi usado. A geolocalização usa o endereço do posto e, se a busca falha ou cai fora da cidade, o CEP. Dois postos no mesmo ponto podem se sobrepor no mapa.
 
-Próximos passos, nesta ordem:
-
-1. Diagnosticar encoding, ausência, duplicatas, produtos e bandeiras.
-2. Implementar a limpeza com as regras e o impacto registrados no relatório.
-3. Gerar Parquet, figuras e testes automatizados.
-4. Fechar o relatório técnico em ligação com os artefatos.
+Próximos passos possíveis: acompanhar outros meses, separar a variação dentro do próprio mês e comparar Londrina com o restante do Paraná.
